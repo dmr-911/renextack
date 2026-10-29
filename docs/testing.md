@@ -35,7 +35,7 @@ npm run build && npm run test:e2e    # resets, migrates and seeds launchstack_te
 
 First Playwright run: `npx playwright install chromium`.
 
-Integration and e2e tests **wipe their database**. They use `launchstack_test` by default; override with `TEST_DATABASE_URL` / `E2E_DATABASE_URL`, never with your development or production URL.
+Integration and e2e tests **wipe their database**. They use the local Docker `launchstack_test` by default; override with `TEST_DATABASE_URL` / `E2E_DATABASE_URL`, never with your development or production URL. If you work with Neon only, create a dedicated `test` branch and use its direct URL (see [neon.md](neon.md#branches-for-development-previews-and-tests)).
 
 Debugging: `npx playwright test --ui`, `npx playwright show-report`, `TEST_LOG_LEVEL=debug npm run test:integration` to see server logs.
 

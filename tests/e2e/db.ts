@@ -1,9 +1,10 @@
 import { Client } from "pg";
 import { E2E_DATABASE_URL } from "../../playwright.config";
+import { postgresConnectionOptions } from "../../src/server/db/connection-options";
 
 /** Reads the most recent password-reset token, standing in for "open the email". */
 export async function latestResetToken(): Promise<string> {
-  const client = new Client({ connectionString: E2E_DATABASE_URL });
+  const client = new Client(postgresConnectionOptions(E2E_DATABASE_URL));
   await client.connect();
   try {
     const result = await client.query<{ identifier: string }>(

@@ -59,7 +59,7 @@ Choices made in `src/server/auth/auth.ts`:
 - **Rate limits are stored in Postgres** so they hold across multiple server instances.
 
 ### Drizzle ORM + plain SQL migrations
-Drizzle keeps you close to SQL, has no runtime engine or binary, works in serverless and edge-adjacent environments, and generates readable migrations you commit (`drizzle/`). The `db` export is a lazy proxy, so importing it never requires `DATABASE_URL`; this is what allows `next build` to run without a database.
+Drizzle keeps you close to SQL, has no runtime engine or binary, works in serverless and edge-adjacent environments, and generates readable migrations you commit (`drizzle/`). The database is plain Postgres, with Neon as the recommended host; `src/server/db/connection-options.ts` handles Neon's TLS and channel-binding URL parameters, and the app keeps the standard `pg` driver so the same code runs against local Postgres in tests ([neon.md](neon.md)). The `db` export is a lazy proxy, so importing it never requires `DATABASE_URL`; this is what allows `next build` to run without a database.
 
 ### Zod schemas shared by client and server
 Each feature has a `schema.ts` used by the form (for instant feedback), the Server Action, and the API route. Server-side validation is never skipped; client-side validation is a convenience.

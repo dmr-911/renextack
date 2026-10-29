@@ -29,6 +29,8 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+      # Optional: Neon's direct (non-pooler) URL for migrations. Falls back to DATABASE_URL.
+      DATABASE_URL_UNPOOLED: ${{ secrets.PRODUCTION_DATABASE_URL_UNPOOLED }}
       DATABASE_SSL: ${{ vars.DATABASE_SSL || 'true' }}
     steps:
       - name: Check deployment secrets

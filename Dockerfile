@@ -27,6 +27,7 @@ COPY package.json tsconfig.json ./
 COPY drizzle ./drizzle
 COPY scripts ./scripts
 COPY src/server/db/schema ./src/server/db/schema
+COPY src/server/db/connection-options.ts ./src/server/db/connection-options.ts
 CMD ["npx", "tsx", "scripts/db/migrate.ts"]
 
 FROM node:${NODE_VERSION} AS runner

@@ -24,6 +24,7 @@ First release.
 - Authentication with Better Auth 1.7: sign up, sign in, sign out, forgot/reset password with session revocation, change password, session list and revoke, account deletion, database-backed auth rate limits.
 - Role-based authorization (`user`, `admin`) with resource policies and ownership checks in every service; 404 for records the caller can't see.
 - PostgreSQL schema with Drizzle ORM, committed migrations, idempotent local seed with demo accounts, pooled connections.
+- Neon as the recommended database: pooled `DATABASE_URL` for the app, direct `DATABASE_URL_UNPOOLED` for migrations and scripts, automatic TLS and channel binding for Neon URLs, and a setup guide covering branches and Vercel.
 - Versioned REST API (`/api/v1`) for projects, tasks, the current user, admin user management, billing checkout and AI suggestions, with Zod validation, a single error format, request ids, pagination, filtering, search and per-user rate limits.
 - Example product "Orbit": dashboard overview with cached stats and activity feed, projects and tasks CRUD with optimistic updates, settings, admin user directory.
 - Accessible UI kit (button, input, select, textarea, field, card, alert, badge, table, pagination, modal, dropdown menu, empty state, skeleton, spinner, avatar) with light, dark and system themes and a live gallery at `/components`.

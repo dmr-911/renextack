@@ -3,6 +3,7 @@ import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { env } from "@/server/config/env";
 import { logger } from "@/server/logger";
+import { postgresConnectionOptions } from "./connection-options";
 import * as schema from "./schema";
 
 export type Database = NodePgDatabase<typeof schema>;
@@ -23,11 +24,11 @@ const globalForDb = globalThis as unknown as { __launchstackPool?: Pool };
 function createPool(): Pool {
   const config = env();
   const pool = new Pool({
-    connectionString: config.DATABASE_URL,
+    ...postgresConnectionOptions(config.DATABASE_URL, { ssl: config.DATABASE_SSL }),
     max: config.DATABASE_POOL_MAX,
     idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 10_000,
-    ssl: config.DATABASE_SSL ? { rejectUnauthorized: true } : undefined,
+    // Neon's free tier suspends idle compute; the first connection can take a few seconds to wake it.
+    connectionTimeoutMillis: 15_000,
   });
   pool.on("error", (error) => logger.error("Idle database client error", { error }));
   return pool;

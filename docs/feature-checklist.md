@@ -51,6 +51,7 @@ What ships in LaunchStack Next 1.0.0, and how each item is verified. ✅ = inclu
 | Consistent error format with request ids | ✅ | integration |
 | Pagination, filtering, search (wildcards escaped) | ✅ | integration, unit |
 | Per-user API rate limits (Postgres store) | ✅ | integration (concurrency), unit |
+| Neon support: pooled/direct URLs, TLS + channel binding | ✅ / ☑️ | unit `connection-options.test.ts`; **not run against a live Neon project** |
 | Health check endpoint | ✅ | e2e web server readiness |
 
 ## UI

@@ -7,7 +7,11 @@ export default defineConfig({
   dialect: "postgresql",
   casing: "snake_case",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgres://launchstack:launchstack@localhost:5432/launchstack",
+    // Direct (unpooled) URL when available, e.g. Neon's non-pooler endpoint.
+    url:
+      process.env.DATABASE_URL_UNPOOLED ||
+      process.env.DATABASE_URL ||
+      "postgres://launchstack:launchstack@localhost:5432/launchstack",
   },
   strict: true,
   verbose: true,

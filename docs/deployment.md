@@ -2,7 +2,7 @@
 
 LaunchStack Next is a standard Next.js 16 app plus a Postgres database. Two paths are documented: **Vercel** (managed, the default `deploy.yml`) and **Docker** (any container host). Whichever you choose, the order is always:
 
-1. Provision Postgres and get its connection string (pooled, for serverless).
+1. Provision Postgres (Neon recommended, see [neon.md](neon.md)) and get its pooled and direct connection strings.
 2. Set the [required environment variables](environment-variables.md).
 3. Run migrations (`npm run db:migrate`) **before** the new version starts serving.
 4. Deploy the app.
@@ -14,7 +14,7 @@ LaunchStack Next is a standard Next.js 16 app plus a Postgres database. Two path
 
 - [ ] `APP_URL` is the exact public origin with `https://`.
 - [ ] `BETTER_AUTH_SECRET` is a fresh random value (not the example), stored as a secret.
-- [ ] `DATABASE_URL` points at production, with `DATABASE_SSL=true` if required.
+- [ ] `DATABASE_URL` is the production pooled URL and `DATABASE_URL_UNPOOLED` the direct one (Neon: from your main branch). For non-Neon hosts, `DATABASE_SSL=true` if required.
 - [ ] `EMAIL_PROVIDER=resend` (or another adapter) so password reset works.
 - [ ] Migrations ran against the production database.
 - [ ] You have **not** run `npm run db:seed` against production (it refuses, but don't try).
@@ -28,10 +28,10 @@ LaunchStack Next is a standard Next.js 16 app plus a Postgres database. Two path
 
 ### One-time setup
 
-1. Create a Postgres database. Neon, Supabase, and Vercel's Postgres marketplace integrations all work. Copy the **pooled** connection string (PgBouncer / "transaction" mode). Serverless functions open many short-lived processes; a direct connection string will exhaust Postgres's connection limit.
+1. Create the database. The simplest option is Vercel's **Neon** integration (Project → Storage → Neon), which sets `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (direct) for you; see [neon.md](neon.md#production-on-vercel). With any other provider, use the **pooled** connection string (PgBouncer / "transaction" mode) for `DATABASE_URL`: serverless functions open many short-lived processes, and a direct connection string will exhaust Postgres's connection limit.
 2. Import the repository in Vercel. The framework preset is detected automatically. No build settings need changing.
-3. In **Project Settings → Environment Variables** (Production), set `APP_URL`, `DATABASE_URL`, `DATABASE_SSL=true`, `DATABASE_POOL_MAX=3`, `BETTER_AUTH_SECRET` and any integration keys.
-4. Run migrations once from your machine: `DATABASE_URL=<direct-or-pooled-url> DATABASE_SSL=true npm run db:migrate`.
+3. In **Project Settings → Environment Variables** (Production), set `APP_URL`, `DATABASE_URL`, `DATABASE_URL_UNPOOLED` (skip both if the Neon integration added them), `DATABASE_POOL_MAX=3`, `BETTER_AUTH_SECRET` and any integration keys.
+4. Run migrations once from your machine: `DATABASE_URL_UNPOOLED=<direct-url> npm run db:migrate`.
 
 At this point Vercel's Git integration can deploy on every push, but it won't run migrations. Use either approach below.
 
@@ -43,9 +43,10 @@ At this point Vercel's Git integration can deploy on every push, but it won't ru
 |---|---|
 | `VERCEL_TOKEN` | Vercel → Account Settings → Tokens |
 | `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | Run `npx vercel link` locally, then read `.vercel/project.json` |
-| `PRODUCTION_DATABASE_URL` | Your production connection string |
+| `PRODUCTION_DATABASE_URL` | Your production connection string (Neon: pooled) |
+| `PRODUCTION_DATABASE_URL_UNPOOLED` | Optional: the direct string; migrations use it when present (recommended for Neon) |
 
-Optional repository variable: `DATABASE_SSL` (defaults to `true`).
+Optional repository variable: `DATABASE_SSL` (defaults to `true`; harmless for Neon, where TLS is automatic).
 
 Until those secrets exist, the workflow logs a notice and exits successfully, so a fresh copy of the kit never shows a failing deploy. The job uses a GitHub `production` environment, so you can add required reviewers there for a manual approval step.
 

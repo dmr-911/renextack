@@ -8,9 +8,10 @@ All variables are validated in `src/server/config/env.ts` when the server starts
 |---|---|---|---|
 | `NODE_ENV` | no | `development` | Set by Next.js (`production` for `next build`/`next start`). Seeding and `db:reset` refuse to run in production. |
 | `APP_URL` | **yes** | – | Public origin, e.g. `https://app.example.com`. Used for auth callbacks, trusted origins and email links. `https` enables secure cookies. |
-| `DATABASE_URL` | **yes** | – | `postgres://user:pass@host:5432/db`. Use the **pooled** connection string on serverless hosts. |
+| `DATABASE_URL` | **yes** | – | `postgres://user:pass@host:5432/db`. With Neon, the **pooled** string (host contains `-pooler`). Used by the app. |
+| `DATABASE_URL_UNPOOLED` | no | – | Direct (non-pooled) string, e.g. Neon with pooling off. Used by migrations, seed, reset and drizzle-kit; falls back to `DATABASE_URL`. Vercel's Neon integration sets it automatically. |
 | `DATABASE_POOL_MAX` | no | `10` | Max connections per server process. Use 1–5 on serverless, 10–20 on a long-running server. |
-| `DATABASE_SSL` | no | `false` | `true` when the provider requires TLS (most hosted Postgres). |
+| `DATABASE_SSL` | no | `false` | Force TLS with certificate verification. Not needed for Neon or URLs with `sslmode=require`; TLS is enabled automatically for those. |
 | `BETTER_AUTH_SECRET` | **yes** | – | ≥ 32 random characters, used to sign sessions and tokens. `openssl rand -base64 32`. The example value is rejected in production. Rotating it signs everyone out. |
 | `LOG_LEVEL` | no | `info` | `debug`, `info`, `warn`, `error`, or `silent`. |
 | `RATE_LIMIT_STORE` | no | `database` | `database` works across instances. `memory` is per-process (fine for one server or tests). |
@@ -69,7 +70,8 @@ All variables are validated in `src/server/config/env.ts` when the server starts
 |---|---|---|
 | `BUILD_STANDALONE` | build | `true` emits `.next/standalone` (used by the Dockerfile). |
 | `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` | GitHub secrets | Used by `.github/workflows/deploy.yml`. |
-| `PRODUCTION_DATABASE_URL` | GitHub secret | Used by the deploy workflow to run migrations before deploying. |
+| `PRODUCTION_DATABASE_URL` | GitHub secret | Production database (Neon pooled URL). Required by the deploy workflow. |
+| `PRODUCTION_DATABASE_URL_UNPOOLED` | GitHub secret | Optional direct URL; the deploy workflow runs migrations over it when set. |
 
 ## Adding a variable
 

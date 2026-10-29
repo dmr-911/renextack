@@ -4,7 +4,7 @@
 
 - **Node.js 20.9 or newer** (Next.js 16's minimum). Node 22 LTS is recommended and pinned in `.nvmrc` (`nvm use`).
 - **npm 10+** (ships with Node 20/22).
-- **PostgreSQL 14+**. The easiest route is Docker (`docker compose up -d` uses Postgres 17). Any hosted Postgres (Neon, Supabase, RDS, Railway…) works too.
+- **PostgreSQL 14+**. The recommended route is a free [Neon](https://neon.tech) project ([docs/neon.md](neon.md)). For offline work, `docker compose up -d` runs Postgres 17 locally. Any other Postgres works too.
 
 ## Install sequence
 
@@ -12,7 +12,9 @@
 git clone <your-copy-of-the-repo> my-app && cd my-app
 npm install
 npm run setup          # .env from .env.example + a generated BETTER_AUTH_SECRET
-docker compose up -d   # Postgres on localhost:5432 (also creates launchstack_test)
+# Neon: set DATABASE_URL (pooled) and DATABASE_URL_UNPOOLED (direct) in .env, see neon.md
+# or local: docker compose up -d   (Postgres on localhost:5432, also creates launchstack_test)
+npm run env:check
 npm run db:migrate
 npm run db:seed        # optional demo data, development only
 npm run dev
@@ -27,7 +29,11 @@ Open http://localhost:3000. Demo accounts (local only):
 
 The seed script refuses to run when `NODE_ENV=production` and refuses if `SEED_DEMO_PASSWORD` is unset, so demo credentials can never be created in production by accident. It is idempotent: running it twice doesn't duplicate data.
 
-### Using your own Postgres instead of Docker
+### Using Neon
+
+Follow [neon.md](neon.md): copy the pooled and direct connection strings from the Neon console into `DATABASE_URL` and `DATABASE_URL_UNPOOLED`. TLS and channel binding are configured automatically. Use a `dev` branch for local work and a separate branch for tests.
+
+### Using another Postgres host
 
 Set `DATABASE_URL` in `.env`, for example:
 
@@ -36,7 +42,7 @@ DATABASE_URL=postgres://user:password@db.example.com:5432/myapp
 DATABASE_SSL=true
 ```
 
-For the integration and e2e tests, create a second empty database and point `TEST_DATABASE_URL` (and `E2E_DATABASE_URL`) at it. Tests reset that database; **never point them at data you care about.**
+For the integration and e2e tests, create a second empty database (or Neon branch) and point `TEST_DATABASE_URL` (and `E2E_DATABASE_URL`) at it. Tests reset that database; **never point them at data you care about.** Without either variable they use the local Docker `launchstack_test` database.
 
 ### Checking your configuration
 
@@ -64,7 +70,7 @@ See the script table in the [README](../README.md#scripts). After editing `src/s
 ## Troubleshooting
 
 **`Could not connect to Postgres. Is it running?`**
-Postgres isn't reachable at `DATABASE_URL`. Run `docker compose ps`; if the container isn't healthy, `docker compose up -d` and `docker compose logs postgres`. If port 5432 is taken by another local Postgres, either stop it or change the port mapping in `docker-compose.yml` and in `DATABASE_URL`.
+Postgres isn't reachable at `DATABASE_URL`. With Neon, check the URL was copied whole and the project isn't suspended or over quota (see [neon.md](neon.md#troubleshooting)). Locally: Run `docker compose ps`; if the container isn't healthy, `docker compose up -d` and `docker compose logs postgres`. If port 5432 is taken by another local Postgres, either stop it or change the port mapping in `docker-compose.yml` and in `DATABASE_URL`.
 
 **`Postgres rejected the username or password`**
 The credentials in `DATABASE_URL` don't match the server. With Docker, the defaults are `launchstack` / `launchstack`. If you changed them after the volume was created, Postgres keeps the old ones: `docker compose down -v` (deletes local data) and start again.

@@ -2,11 +2,12 @@ import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
+import { postgresConnectionOptions } from "@/server/db/connection-options";
 import { TEST_DATABASE_URL } from "./test-env";
 
 /** Recreates the test database schema from the committed migrations once per run. */
 export default async function setup() {
-  const pool = new Pool({ connectionString: TEST_DATABASE_URL, max: 1 });
+  const pool = new Pool({ ...postgresConnectionOptions(TEST_DATABASE_URL), max: 1 });
   try {
     const db = drizzle(pool);
     await db.execute(sql`DROP SCHEMA IF EXISTS public CASCADE`);

@@ -27,6 +27,16 @@ describe("environment validation", () => {
     }
   });
 
+  it("accepts Neon's pooled and direct URLs", () => {
+    const env = parseEnv({
+      ...valid,
+      DATABASE_URL: "postgresql://neondb_owner:pw@ep-x-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require",
+      DATABASE_URL_UNPOOLED: "postgresql://neondb_owner:pw@ep-x.us-east-2.aws.neon.tech/neondb?sslmode=require",
+    });
+    expect(env.DATABASE_URL_UNPOOLED).toContain("ep-x.us-east-2");
+    expect(() => parseEnv({ ...valid, DATABASE_URL_UNPOOLED: "mysql://x" })).toThrow(EnvValidationError);
+  });
+
   it("treats empty strings as unset", () => {
     expect(() => parseEnv({ ...valid, DATABASE_URL: "" })).toThrow(/DATABASE_URL/);
   });

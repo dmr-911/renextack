@@ -26,7 +26,9 @@ if (contents.includes(`BETTER_AUTH_SECRET=${PLACEHOLDER}`)) {
 
 console.log(`
 Next steps:
-  docker compose up -d     # start Postgres (or point DATABASE_URL at your own)
+  # Database: paste your Neon URLs into .env (see docs/neon.md),
+  # or run a local Postgres instead:
+  docker compose up -d
   npm run db:migrate       # create tables
   npm run db:seed          # demo accounts + sample data (development only)
   npm run dev              # http://localhost:3000

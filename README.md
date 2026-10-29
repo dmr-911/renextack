@@ -16,7 +16,7 @@ A production-minded **Next.js SaaS starter kit** for solo developers and small t
 | **Framework** | Next.js 16.4 (App Router, Turbopack, Cache Components), React 19.3, TypeScript strict mode |
 | **Auth** | [Better Auth](https://www.better-auth.com) 1.7: email + password sign-up/in/out, password reset, session list and revoke, change password, delete account, DB-backed rate limits on auth endpoints |
 | **Authorization** | `user` and `admin` roles, permission checks and resource policies in one tested module, ownership enforced in every service function |
-| **Database** | PostgreSQL + [Drizzle ORM](https://orm.drizzle.team), committed SQL migrations, idempotent seed script, pooled connections |
+| **Database** | PostgreSQL on [Neon](https://neon.tech) (recommended; local Docker Postgres also works) + [Drizzle ORM](https://orm.drizzle.team), committed SQL migrations, idempotent seed script, pooled and direct connections ([docs/neon.md](docs/neon.md)) |
 | **API** | Versioned REST API (`/api/v1`) with Zod validation, one error format, pagination, filtering, search, per-user rate limits, request ids |
 | **Dashboard** | Responsive app shell, overview cards, recent activity, projects + tasks CRUD, settings, admin user directory; loading, empty, error, and success states throughout |
 | **UI kit** | Accessible components (button, input, select, field, modal, dropdown, table, alert, card, badge, pagination, empty state, skeleton) with light/dark design tokens; live at `/components` |
@@ -27,14 +27,17 @@ A production-minded **Next.js SaaS starter kit** for solo developers and small t
 
 ## Quick start
 
-Requirements: **Node.js 20.9+** (22 recommended, see `.nvmrc`) and **Docker** (for local Postgres; or bring your own Postgres 14+).
+Requirements: **Node.js 20.9+** (22 recommended, see `.nvmrc`) and a **[Neon](https://neon.tech)** project (free tier is fine). Prefer to work offline? Use the bundled Docker Postgres instead.
 
 ```bash
 npm install
 npm run setup          # creates .env from .env.example and generates BETTER_AUTH_SECRET
-docker compose up -d   # starts Postgres on localhost:5432
+# Neon: paste the pooled and direct connection strings into DATABASE_URL and
+#       DATABASE_URL_UNPOOLED in .env (see docs/neon.md)
+# or offline: docker compose up -d   (keeps the default localhost DATABASE_URL)
+npm run env:check      # confirms which database you're connected to
 npm run db:migrate     # creates the tables
-npm run db:seed        # demo accounts + sample data (development only)
+npm run db:seed        # demo accounts + sample data (development only; use a Neon dev branch)
 npm run dev            # http://localhost:3000
 ```
 
@@ -98,6 +101,7 @@ packaging/                  License template, sales landing page (not part of th
 
 - [Architecture and design decisions](docs/architecture.md)
 - [Installation and troubleshooting](docs/installation.md)
+- [Using Neon (database setup, branches, pooling)](docs/neon.md)
 - [Environment variable reference](docs/environment-variables.md)
 - [Deployment (Vercel, Docker)](docs/deployment.md)
 - [Caching and revalidation](docs/caching.md)
@@ -117,7 +121,7 @@ Everything runs locally for free. For production you provide:
 
 | You configure | Required? | Typical cost |
 |---|---|---|
-| A PostgreSQL database (Neon, Supabase, RDS, Railway, your own server) | **Yes** | Free tiers exist; paid plans from a few $/month |
+| A PostgreSQL database: Neon recommended ([setup](docs/neon.md)); any Postgres 14+ works | **Yes** | Neon has a free tier; paid plans are usage-based |
 | Hosting (Vercel, or any Docker host) | **Yes** | Free hobby tiers exist; commercial use usually needs a paid plan |
 | `APP_URL`, `BETTER_AUTH_SECRET`, `DATABASE_URL` | **Yes** | Free |
 | Email delivery (Resend) for password reset in production | Strongly recommended | Free tier, then paid |

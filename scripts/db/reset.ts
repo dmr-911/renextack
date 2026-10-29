@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { connect, describeConnectionError } from "./client";
+import { connect, describeConnectionError, scriptDatabaseUrl } from "./client";
 
 /** Drops every table in the public schema. Development and test databases only. */
 async function main() {
@@ -7,9 +7,9 @@ async function main() {
     console.error("✗ Refusing to reset a database while NODE_ENV=production.");
     process.exit(1);
   }
-  const url = process.env.DATABASE_URL ?? "";
+  const url = scriptDatabaseUrl() ?? "";
   if (!/localhost|127\.0\.0\.1|@postgres[:/]/.test(url) && process.env.ALLOW_REMOTE_RESET !== "true") {
-    console.error("✗ DATABASE_URL does not point at a local database. Set ALLOW_REMOTE_RESET=true if you really mean it.");
+    console.error("✗ The database URL does not point at a local database. Set ALLOW_REMOTE_RESET=true if you really mean it (e.g. a disposable Neon branch).");
     process.exit(1);
   }
   const { db, close } = connect();

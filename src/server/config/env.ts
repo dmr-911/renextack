@@ -26,6 +26,11 @@ export const envSchema = z
     DATABASE_URL: z
       .string({ message: "DATABASE_URL is required" })
       .regex(/^postgres(ql)?:\/\//, "DATABASE_URL must start with postgres:// or postgresql://"),
+    /** Direct (non-pooled) connection used by migrations and scripts, e.g. Neon's non-pooler endpoint. */
+    DATABASE_URL_UNPOOLED: z
+      .string()
+      .regex(/^postgres(ql)?:\/\//, "DATABASE_URL_UNPOOLED must start with postgres:// or postgresql://")
+      .optional(),
     DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),
     DATABASE_SSL: booleanString.default(false),
 
