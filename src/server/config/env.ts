@@ -55,7 +55,7 @@ export const envSchema = z
 
     AI_PROVIDER: z.enum(["none", "anthropic"]).default("none"),
     ANTHROPIC_API_KEY: z.string().optional(),
-    ANTHROPIC_MODEL: z.string().default("claude-sonnet-5-5"),
+    ANTHROPIC_MODEL: z.string().default("claude-opus-5-5"),
   })
   .superRefine((value, ctx) => {
     const requireWhen = (condition: boolean, key: keyof typeof value, reason: string) => {
