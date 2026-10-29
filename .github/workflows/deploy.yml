@@ -1,0 +1,68 @@
+name: Deploy
+
+# Deploys main to Vercel after CI passes, running database migrations first.
+# Does nothing until you add the secrets listed in docs/deployment.md, so a
+# fresh copy of the kit never fails on a deploy it can't do yet.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+      # Optional: Neon's direct (non-pooler) URL for migrations. Falls back to DATABASE_URL.
+      DATABASE_URL_UNPOOLED: ${{ secrets.PRODUCTION_DATABASE_URL_UNPOOLED }}
+      DATABASE_SSL: ${{ vars.DATABASE_SSL || 'true' }}
+    steps:
+      - name: Check deployment secrets
+        id: check
+        run: |
+          missing=""
+          for name in VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID DATABASE_URL; do
+            [ -z "${!name}" ] && missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::notice::Skipping deploy: missing secrets:$missing (see docs/deployment.md)"
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ready == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - if: steps.check.outputs.ready == 'true'
+        run: npm ci
+      - name: Run database migrations
+        if: steps.check.outputs.ready == 'true'
+        run: npm run db:migrate
+      - name: Build and deploy with the Vercel CLI
+        if: steps.check.outputs.ready == 'true'
+        run: |
+          npx vercel@65.7.0 pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx vercel@65.7.0 build --prod --token="$VERCEL_TOKEN"
+          npx vercel@65.7.0 deploy --prebuilt --prod --token="$VERCEL_TOKEN"

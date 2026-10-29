@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Upgrade these together; they are tested as a set. See docs/upgrading-dependencies.md.
+      next-react:
+        patterns: ["next", "eslint-config-next", "react", "react-dom", "@types/react", "@types/react-dom"]
+      drizzle:
+        patterns: ["drizzle-orm", "drizzle-kit"]
+      testing:
+        patterns: ["vitest", "@vitest/*", "@playwright/test", "@testing-library/*", "jsdom"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
