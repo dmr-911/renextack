@@ -23,7 +23,12 @@ function currentThreshold(): number {
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 5 || value === null || typeof value !== "object") return value;
   if (value instanceof Error) {
-    return { name: value.name, message: value.message, stack: value.stack };
+    return {
+      name: value.name,
+      message: value.message,
+      stack: value.stack,
+      ...(value.cause !== undefined ? { cause: redact(value.cause, depth + 1) } : {}),
+    };
   }
   if (Array.isArray(value)) return value.map((item) => redact(item, depth + 1));
   return Object.fromEntries(

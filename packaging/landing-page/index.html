@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LaunchStack Next: the Next.js SaaS starter kit</title>
+  <meta name="description" content="Production-ready Next.js 16 SaaS starter kit with auth, roles, Postgres, a tested API, an accessible UI kit, CI and deployment guides." />
+  <!--
+    Example sales page for the kit. Static HTML, no build step, no external
+    requests: host it anywhere (GitHub Pages, Netlify, Vercel static, S3).
+    Replace every [BRACKETED] value and the checkout links before publishing.
+    Screenshots are referenced from ../../docs/screenshots; copy them next to
+    this file (./screenshots/) when you deploy it on its own.
+  -->
+  <style>
+    :root {
+      --bg: #f8f9fc; --fg: #1d2233; --muted: #5d6478; --surface: #ffffff; --border: #e3e6ee;
+      --primary: #4f46e5; --primary-fg: #ffffff; --accent: #eef0ff; --ok: #138a52;
+      --radius: 12px; color-scheme: light;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #11131c; --fg: #eceef5; --muted: #a3a9bc; --surface: #181b27; --border: #2a2e3d;
+        --primary: #8b85ff; --primary-fg: #12121f; --accent: #23243a; --ok: #4fd18f; color-scheme: dark;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.6 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--fg); }
+    a { color: var(--primary); }
+    img { max-width: 100%; display: block; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+    .skip { position: absolute; left: -999px; } .skip:focus { left: 16px; top: 16px; background: var(--surface); padding: 8px 12px; border-radius: 8px; }
+    header.top { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; color: var(--fg); }
+    .brand span.mark { width: 28px; height: 28px; border-radius: 8px; background: var(--primary); display: grid; place-items: center; color: var(--primary-fg); font-size: 15px; }
+    nav.top a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 15px; }
+    nav.top a:hover { color: var(--fg); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 1px solid transparent; }
+    .btn.primary { background: var(--primary); color: var(--primary-fg); }
+    .btn.outline { border-color: var(--border); color: var(--fg); background: var(--surface); }
+    .btn:focus-visible, a:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; }
+    .hero { text-align: center; padding: 56px 0 40px; }
+    .pill { display: inline-block; padding: 4px 12px; border-radius: 999px; background: var(--accent); color: var(--primary); font-size: 14px; font-weight: 600; }
+    h1 { font-size: clamp(2.1rem, 5vw, 3.4rem); line-height: 1.1; letter-spacing: -0.02em; margin: 18px auto 16px; max-width: 820px; }
+    .lead { color: var(--muted); font-size: 1.15rem; max-width: 680px; margin: 0 auto 28px; }
+    .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .shot { margin: 48px auto 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 20px 50px -20px rgba(20, 20, 60, .35); max-width: 1000px; }
+    section { padding: 64px 0; }
+    h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); letter-spacing: -0.01em; margin: 0 0 12px; text-align: center; }
+    .sub { color: var(--muted); text-align: center; max-width: 640px; margin: 0 auto 36px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .card h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 15px; }
+    .two { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .two img { border-radius: var(--radius); border: 1px solid var(--border); }
+    ul.check { list-style: none; padding: 0; margin: 0; }
+    ul.check li { padding-left: 26px; position: relative; margin: 8px 0; }
+    ul.check li::before { content: "✓"; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+    ul.no li::before { content: "–"; color: var(--muted); }
+    table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; font-size: 15px; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--accent); }
+    .table-wrap { overflow-x: auto; }
+    .price { font-size: 2.2rem; font-weight: 800; margin: 8px 0; }
+    .price small { font-size: 1rem; color: var(--muted); font-weight: 500; }
+    .tier.featured { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+    .tier .btn { width: 100%; margin-top: 16px; }
+    details { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 18px; margin-bottom: 10px; }
+    summary { cursor: pointer; font-weight: 600; }
+    details p { color: var(--muted); margin: 10px 0 0; }
+    footer { border-top: 1px solid var(--border); padding: 28px 0 40px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 640px) { nav.top a:not(.btn) { display: none; } section { padding: 44px 0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="wrap">
+    <header class="top">
+      <a class="brand" href="#"><span class="mark" aria-hidden="true">▲</span> LaunchStack Next</a>
+      <nav class="top" aria-label="Main">
+        <a href="#features">Features</a>
+        <a href="#included">What's included</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn primary" href="#pricing" style="margin-left:20px;padding:8px 14px">Buy now</a>
+      </nav>
+    </header>
+  </div>
+
+  <main id="main">
+    <div class="wrap hero">
+      <span class="pill">Next.js 16 · TypeScript · Postgres</span>
+      <h1>Skip the first month of every SaaS. Start at the features.</h1>
+      <p class="lead">LaunchStack Next is a production-minded starter kit with authentication, roles, a tested API, an accessible dashboard and deployment guides. It's readable code you own, with no lock-in and no paid services required.</p>
+      <div class="cta">
+        <a class="btn primary" href="#pricing">Get LaunchStack Next</a>
+        <a class="btn outline" href="[LIVE_DEMO_URL]">View the live demo</a>
+      </div>
+      <div class="shot"><img src="../../docs/screenshots/dashboard-light.png" alt="The example app's dashboard with overview cards and recent activity" width="1440" height="900" /></div>
+    </div>
+
+    <section id="features">
+      <div class="wrap">
+        <h2>The boring parts, done properly</h2>
+        <p class="sub">Every pattern is used for real in a working example app, and covered by tests you can run.</p>
+        <div class="grid">
+          <div class="card"><h3>Authentication</h3><p>Email and password sign-up, password reset, session management and account deletion with Better Auth, all stored in your own database.</p></div>
+          <div class="card"><h3>Server-side authorization</h3><p>User and admin roles, ownership checks in every service, and tests that try to read other users' data.</p></div>
+          <div class="card"><h3>Typed Postgres</h3><p>Drizzle ORM, committed SQL migrations, an idempotent seed, and pooled connections that work on serverless.</p></div>
+          <div class="card"><h3>A real API</h3><p>Versioned REST endpoints with validation, one error format, pagination, search and per-user rate limits.</p></div>
+          <div class="card"><h3>Accessible UI kit</h3><p>Buttons, forms, modals, menus, tables and more, with keyboard support, light and dark themes, and design tokens.</p></div>
+          <div class="card"><h3>Production defaults</h3><p>Env validation, structured logs with secret redaction, security headers, a health check, Docker and CI.</p></div>
+          <div class="card"><h3>Caching you can reason about</h3><p>A worked per-user cache example with tag invalidation from both Server Actions and the API.</p></div>
+          <div class="card"><h3>Optional integrations</h3><p>Stripe, Resend, PostHog, Anthropic and file storage adapters, off by default, behind small interfaces.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap two">
+        <img src="../../docs/screenshots/project-detail.png" alt="Project page with tasks, priorities and due dates" loading="lazy" width="1440" height="900" />
+        <img src="../../docs/screenshots/dashboard-dark.png" alt="The dashboard in dark mode" loading="lazy" width="1440" height="900" />
+      </div>
+    </section>
+
+    <section id="included">
+      <div class="wrap">
+        <h2>Exactly what you get</h2>
+        <p class="sub">No surprises. Here's what's included, what you configure, and what may cost money.</p>
+        <div class="two">
+          <div class="card">
+            <h3>Included</h3>
+            <ul class="check">
+              <li>Full source code (Next.js 16, React 19, TypeScript strict)</li>
+              <li>Example product: projects, tasks, dashboard, settings, admin</li>
+              <li>Unit, integration and end-to-end test suites</li>
+              <li>GitHub Actions CI and a Vercel deploy workflow</li>
+              <li>Dockerfile for any container host</li>
+              <li>Guides: architecture, deployment, security, caching, adding features, upgrading</li>
+              <li>Updates for [12 months]</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Not included</h3>
+            <ul class="check no">
+              <li>Hosting or a database (bring your own; free tiers exist)</li>
+              <li>Teams/organizations, OAuth sign-in and 2FA (Better Auth plugins make these straightforward)</li>
+              <li>A finished billing system: Checkout and verified webhooks are included, plan storage and gating are yours</li>
+              <li>Custom development or a managed service</li>
+            </ul>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:24px">
+          <table>
+            <caption style="text-align:left;padding:0 0 10px;color:var(--muted)">Services you may pay for, depending on what you turn on</caption>
+            <thead><tr><th scope="col">Service</th><th scope="col">Needed?</th><th scope="col">Typical cost</th></tr></thead>
+            <tbody>
+              <tr><td>PostgreSQL (Neon, Supabase, RDS…)</td><td>Yes</td><td>Free tiers, then from a few $/month</td></tr>
+              <tr><td>Hosting (Vercel or any Docker host)</td><td>Yes</td><td>Free hobby tiers; commercial plans vary</td></tr>
+              <tr><td>Email delivery (Resend)</td><td>Recommended for password reset</td><td>Free tier, then usage-based</td></tr>
+              <tr><td>Stripe</td><td>Optional</td><td>Per-transaction fees</td></tr>
+              <tr><td>PostHog</td><td>Optional</td><td>Free tier, then usage-based</td></tr>
+              <tr><td>Anthropic API</td><td>Optional</td><td>Per token</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap">
+        <h2>Simple, one-time pricing</h2>
+        <p class="sub">Pay once, build unlimited products. Prices are examples; set your own.</p>
+        <div class="grid">
+          <div class="card tier">
+            <h3>Personal</h3>
+            <div class="price">[$149] <small>one-time</small></div>
+            <ul class="check"><li>1 developer</li><li>Unlimited personal products</li><li>[12 months] of updates</li></ul>
+            <a class="btn outline" href="[CHECKOUT_URL_PERSONAL]">Buy Personal</a>
+          </div>
+          <div class="card tier featured">
+            <h3>Team</h3>
+            <div class="price">[$399] <small>one-time</small></div>
+            <ul class="check"><li>Up to [10] developers</li><li>Unlimited company products</li><li>[12 months] of updates</li><li>Priority email support</li></ul>
+            <a class="btn primary" href="[CHECKOUT_URL_TEAM]">Buy Team</a>
+          </div>
+          <div class="card tier">
+            <h3>Agency</h3>
+            <div class="price">[$799] <small>one-time</small></div>
+            <ul class="check"><li>Up to [10] developers</li><li>Build and hand over client projects</li><li>[12 months] of updates</li></ul>
+            <a class="btn outline" href="[CHECKOUT_URL_AGENCY]">Buy Agency</a>
+          </div>
+        </div>
+        <p class="sub" style="margin-top:20px;font-size:14px">See the <a href="[LICENSE_URL]">license</a> for exactly what each tier allows. [Refund policy summary.]</p>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="wrap" style="max-width:760px">
+        <h2>Questions</h2>
+        <details><summary>Do I need any paid service to start?</summary><p>No. Everything runs locally with Docker Postgres and console email. In production you need a database and a host, both of which have free tiers.</p></details>
+        <details><summary>Is it locked to Vercel?</summary><p>No. It deploys to Vercel with the included workflow, or anywhere that runs a Docker container or Node.js.</p></details>
+        <details><summary>How is this different from a free template?</summary><p>It's a working product with tests, not a collection of pages. Authorization is enforced on the server and tested, errors and validation are consistent, and the guides explain the trade-offs so you can change them with confidence.</p></details>
+        <details><summary>Can I use it for client work?</summary><p>Yes, with the Agency license. You can't resell the kit itself as a template.</p></details>
+        <details><summary>What happens after my update period ends?</summary><p>You keep every version you received, forever. Renew if you want newer releases.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">© [YEAR] [YOUR COMPANY]. Next.js is a trademark of Vercel, Inc. LaunchStack Next is not affiliated with or endorsed by Vercel or any provider mentioned on this page.</div>
+  </footer>
+</body>
+</html>
